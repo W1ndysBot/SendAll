@@ -130,9 +130,9 @@ async def handle_SendAll_private_message(websocket, msg):
                     group_ids = get_all_group_id()
                     for group_id in group_ids:
                         await send_group_msg(websocket, group_id, content)
-                        await send_private_msg(
-                            websocket, user_id, f"已向群 {group_id} 发送消息"
-                        )
+                    await send_private_msg(
+                        websocket, user_id, f"已向 {len(group_ids)} 个群发送消息"
+                    )
 
     except Exception as e:
         logging.error(f"处理群发私聊消息失败: {e}")
