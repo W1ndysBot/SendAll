@@ -119,7 +119,7 @@ async def handle_SendAll_private_message(websocket, msg):
                     await send_private_msg(
                         websocket,
                         user_id,
-                        f"当前群发群号: \n{'\n'.join(group_ids)}",
+                        f"当前群发群号: \n" + "\n".join(group_ids),
                     )
                 else:
                     await send_private_msg(websocket, user_id, "当前没有群发群号")
