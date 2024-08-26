@@ -14,7 +14,6 @@ sys.path.append(
 
 from app.config import owner_id
 from app.api import *
-from app.switch import load_switch, save_switch
 
 DATA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -49,9 +48,41 @@ def init_db():
     conn.close()
 
 
+# 添加群发的群号
+def add_group_id(group_id):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO groups (group_id) VALUES (?)", (group_id,))
+    conn.commit()
+    conn.close()
+
+
+# 删除群发的群号
+def delete_group_id(group_id):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM groups WHERE group_id = ?", (group_id,))
+    conn.commit()
+    conn.close()
+
+
+# 获取所有群发的群号
+def get_all_group_id():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT group_id FROM groups")
+    group_ids = cursor.fetchall()
+    conn.close()
+    return [group_id[0] for group_id in group_ids]  # 返回一个列表
+
+
 # 私聊消息处理函数
 async def handle_SendAll_private_message(websocket, msg):
+
     try:
+        # 确保数据目录存在
+        os.makedirs(DATA_DIR, exist_ok=True)
+
         user_id = str(msg.get("user_id"))
         raw_message = str(msg.get("raw_message"))
 
@@ -68,15 +99,41 @@ async def handle_SendAll_private_message(websocket, msg):
                 match = re.search("sendadd(.*)", raw_message)
                 if match:
                     added_group_id = match.group(1)
+                    add_group_id(added_group_id)
+                    await send_private_msg(
+                        websocket, user_id, f"已添加群号: {added_group_id}"
+                    )
+
+            elif raw_message.startswith("sendrm"):
+                match = re.search("sendrm(.*)", raw_message)
+                if match:
+                    deleted_group_id = match.group(1)
+                    delete_group_id(deleted_group_id)
+                    await send_private_msg(
+                        websocket, user_id, f"已删除群号: {deleted_group_id}"
+                    )
+
+            elif raw_message.startswith("sendlist"):
+                group_ids = get_all_group_id()
+                if group_ids:
+                    await send_private_msg(
+                        websocket,
+                        user_id,
+                        f"当前群发群号: \n{'\n'.join(group_ids)}",
+                    )
+                else:
+                    await send_private_msg(websocket, user_id, "当前没有群发群号")
+            elif raw_message.startswith("sendall"):
+                match = re.search("sendall(.*)", raw_message)
+                if match:
+                    content = match.group(1)
+                    group_ids = get_all_group_id()
+                    for group_id in group_ids:
+                        await send_group_msg(websocket, group_id, content)
+                        await send_private_msg(
+                            websocket, user_id, f"已向群 {group_id} 发送消息"
+                        )
 
     except Exception as e:
-        logging.error(f"处理xxx私聊消息失败: {e}")
+        logging.error(f"处理群发私聊消息失败: {e}")
         return
-
-
-async def SendAll_main(websocket, msg):
-
-    # 确保数据目录存在
-    os.makedirs(DATA_DIR, exist_ok=True)
-
-    await handle_SendAll_private_message(websocket, msg)
