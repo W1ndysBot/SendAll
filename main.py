@@ -24,10 +24,7 @@ DATA_DIR = os.path.join(
 DB_PATH = os.path.join(DATA_DIR, "group_id.db")
 
 
-import sqlite3
-
-DB_PATH = "your_database_path.db"  # Replace with your actual database path
-
+# 初始化数据库
 def init_db():
     # 连接数据库，如果不存在会自动创建
     conn = sqlite3.connect(DB_PATH)
@@ -47,7 +44,9 @@ def init_db():
 
     # 提交创建表格的操作
     conn.commit()
+
     conn.close()
+
 
 # 添加群发的群号
 def add_group_id(group_id):
