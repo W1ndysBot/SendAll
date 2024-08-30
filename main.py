@@ -124,7 +124,7 @@ async def handle_SendAll_private_message(websocket, msg):
                 else:
                     await send_private_msg(websocket, user_id, "当前没有群发群号")
             elif raw_message.startswith("sendall"):
-                match = re.search(r"sendall\s+(.+)", raw_message, re.DOTALL)
+                match = re.search(r"sendall(.+)", raw_message, re.DOTALL)
                 if match:
                     content = match.group(1)
                     group_ids = get_all_group_id()
