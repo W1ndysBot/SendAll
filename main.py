@@ -128,10 +128,23 @@ async def handle_SendAll_private_message(websocket, msg):
                 if match:
                     content = match.group(1)
                     group_ids = get_all_group_id()
+                    success_count = 0
+                    failed_count = []
                     for group_id in group_ids:
-                        await send_group_msg(websocket, group_id, content)
+                        if (
+                            await send_group_msg_with_reply(
+                                websocket, group_id, content
+                            )
+                            != None
+                        ):
+                            success_count += 1
+                        else:
+                            failed_count.append(group_id)
+                    failed_groups = "\n".join(failed_count) if failed_count else "无"
                     await send_private_msg(
-                        websocket, user_id, f"已向 {len(group_ids)} 个群发送消息"
+                        websocket,
+                        user_id,
+                        f"已向 {success_count} 个群发送消息\n失败群号: {failed_groups}",
                     )
 
     except Exception as e:
