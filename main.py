@@ -76,8 +76,8 @@ def get_all_group_id():
     return [group_id[0] for group_id in group_ids]  # 返回一个列表
 
 
-# 私聊消息处理函数
-async def handle_SendAll_private_message(websocket, msg):
+# 群聊消息处理函数
+async def handle_SendAll_group_message(websocket, msg):
 
     try:
         # 确保数据目录存在
@@ -85,7 +85,13 @@ async def handle_SendAll_private_message(websocket, msg):
 
         user_id = str(msg.get("user_id"))
         raw_message = str(msg.get("raw_message"))
+        group_id = str(msg.get("group_id"))
 
+        # 开放功能的群号
+        if group_id not in ["910696002"]:
+            return
+
+        # 群发消息
         if raw_message.startswith("send"):
 
             if user_id not in owner_id:
@@ -100,8 +106,8 @@ async def handle_SendAll_private_message(websocket, msg):
                 if match:
                     added_group_id = match.group(1)
                     add_group_id(added_group_id)
-                    await send_private_msg(
-                        websocket, user_id, f"已添加群号: {added_group_id}"
+                    await send_group_msg(
+                        websocket, group_id, f"已添加群号: {added_group_id}"
                     )
 
             elif raw_message.startswith("sendrm"):
@@ -109,8 +115,8 @@ async def handle_SendAll_private_message(websocket, msg):
                 if match:
                     deleted_group_id = match.group(1)
                     delete_group_id(deleted_group_id)
-                    await send_private_msg(
-                        websocket, user_id, f"已删除群号: {deleted_group_id}"
+                    await send_group_msg(
+                        websocket, group_id, f"已删除群号: {deleted_group_id}"
                     )
 
             elif raw_message.startswith("sendlist"):
@@ -122,7 +128,7 @@ async def handle_SendAll_private_message(websocket, msg):
                         f"当前群发群号: \n" + "\n".join(group_ids),
                     )
                 else:
-                    await send_private_msg(websocket, user_id, "当前没有群发群号")
+                    await send_group_msg(websocket, group_id, "当前没有群发群号")
             elif raw_message.startswith("sendall"):
                 match = re.search(r"sendall(.+)", raw_message, re.DOTALL)
                 if match:
@@ -148,5 +154,5 @@ async def handle_SendAll_private_message(websocket, msg):
                     )
 
     except Exception as e:
-        logging.error(f"处理群发私聊消息失败: {e}")
+        logging.error(f"处理群发群消息失败: {e}")
         return
