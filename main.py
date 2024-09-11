@@ -149,7 +149,7 @@ async def handle_SendAll_group_message(websocket, msg):
                     failed_groups = "\n".join(failed_count) if failed_count else "无"
                     await send_group_msg(
                         websocket,
-                        group_id,
+                        report_group_id,
                         f"已向 {success_count} 个群发送消息\n失败群号: {failed_groups}",
                     )
 
