@@ -5,7 +5,7 @@ import os
 import sys
 import re
 import sqlite3
-import asyncio
+
 
 # 添加项目根目录到sys.path
 sys.path.append(
@@ -122,9 +122,9 @@ async def handle_SendAll_group_message(websocket, msg):
             elif raw_message.startswith("sendlist"):
                 group_ids = get_all_group_id()
                 if group_ids:
-                    await send_private_msg(
+                    await send_group_msg(
                         websocket,
-                        user_id,
+                        group_id,
                         f"当前群发群号: \n" + "\n".join(group_ids),
                     )
                 else:
