@@ -150,7 +150,7 @@ async def handle_SendAll_group_message(websocket, msg):
                     await send_group_msg(
                         websocket,
                         report_group_id,
-                        f"已向 {success_count} 个群发送消息\n失败群号: {failed_groups}",
+                        f"已向 {success_count} 个群发送消息\n失败群号: \n{failed_groups}",
                     )
 
     except Exception as e:
