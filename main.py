@@ -138,7 +138,7 @@ async def handle_SendAll_group_message(websocket, msg):
                     failed_count = []
                     for group_id in group_ids:
                         if (
-                            await send_group_msg_with_reply(
+                            await send_group_msg(
                                 websocket, group_id, content
                             )
                             != None
